@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Florería Amarilla</title>
+  <style>
+    /* ========================================================
+    MEJORA 1: Paleta de Colores más Consolidada 
+    ========================================================
+    */
+    :root {
+      /* Paleta */
+      --color-yellow-500: #ffd54f; /* Primary */
+      --color-yellow-700: #fbc02d; /* Primary Dark */
+      --color-yellow-100: #fff3cd; /* Primary Light */
+      --color-green-whatsapp: #25D366;
+      --color-green-whatsapp-dark: #128C7E;
+      
+      /* Base */
+      --color-bg: #fffaf5;
+      --color-text: #333;
+      --color-white: #fff;
+      --color-dark: #333;
+      --color-danger: #e53935;
+      --color-danger-light: #ffcdd2;
+      
+      /* Z-Index Estratégico (MEJORA 2) */
+      --z-header: 100;
+      --z-overlay: 500;
+      --z-modal: 600;
+      --z-toast: 700;
+      
+      --shadow: 0 2px 6px rgba(0,0,0,.1);
+      --border-radius: 8px;
+    }
+
+    /* ====== ESTILOS BÁSICOS ====== */
+    * {
+      box-sizing: border-box;
+    }
+    
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      background: var(--color-bg); 
+      color: var(--color-text); 
+      transition: all 0.3s ease;
+    }
+    
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Georgia', serif;
+      color: var(--color-dark);
+    }
+    
+    button {
+      font-family: Arial, sans-serif;
+      cursor: pointer;
+    }
+    
+    button:disabled {
+      background-color: #ccc !important; /* !important para sobrescribir :hover */
+      color: #777;
+      cursor: not-allowed;
+    }
+
+    /* ====== HEADER Y NAVEGACIÓN ====== */
+    header { 
+      background: var(--color-yellow-500); 
+      padding: 1rem; 
+      text-align: center; 
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: var(--z-header); /* Z-index actualizado */
+    }
+    header h1 { margin: 0; }
+    nav { margin-top: .5rem; }
+    
+    nav a, #btnCarrito {
+      margin: 0 0.5rem;
+      text-decoration: none;
+      color: var(--color-text);
+      font-weight: bold;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    
+    nav a:hover, #btnCarrito:hover {
+        background: var(--color-yellow-700);
+    }
+    
+    #btnCarrito {
+      background: none;
+      border: none;
+      font-size: 1em; 
+    }
+
+    /* ====== SECCIONES ====== */
+    .hero { 
+      padding: 3rem 1rem; 
+      text-align: center; 
+      background: var(--color-yellow-100); 
+    }
+    .hero h2 { margin-bottom: 1rem; }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+    }
+
+    #contacto {
+      padding: 2rem;
+      text-align: center;
+      background: var(--color-yellow-100);
+    }
+
+    /* ====== FILTROS Y BÚSQUEDA (MEJORA 3: Responsiveness) ====== */
+    .catalogo-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    #searchBar {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1em;
+      flex-grow: 1; /* MEJORA: Permite que la barra crezca */
+      min-width: 200px; 
+    }
+    
+    .filtro-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .filtro-container button {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: var(--color-white);
+      border-radius: 4px;
+      font-weight: bold;
+      margin-left: 0; /* Ajuste para el gap */
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    }
+    
+    .filtro-container button.active {
+      background: var(--color-yellow-700);
+      color: var(--color-dark);
+    }
+    
+    /* MEJORA: Responsiveness para filtros */
+    @media (max-width: 600px) {
+        .catalogo-header {
+            flex-direction: column;
+        }
+        .filtro-container {
+            width: 100%;
+            justify-content: space-around;
+        }
+    }
+
+    /* ====== CATÁLOGO (GRID) ====== */
+    .catalogo { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+      gap: 1.5rem; 
+    }
+    
+    .card { 
+      background: var(--color-white); 
+      border-radius: var(--border-radius); 
+      box-shadow: var(--shadow); 
+      transition: transform .2s ease-in-out;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .card-content {
+      padding: 1rem;
+      cursor: pointer;
+      flex-grow: 1;
+      text-align: center;
+    }
+    
+    .card img { 
+      max-width: 100%; 
+      border-radius: 6px 6px 0 0; 
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+    
+    .card-actions {
+      padding: 0 1rem 1rem 1rem;
+      text-align: center;
+    }
+    
+    .card-actions button { 
+      width: 100%;
+      padding: .5rem 1rem; 
+      background: var(--color-yellow-700); 
+      border: none; 
+      border-radius: 4px; 
+      font-weight: bold;
+      transition: background .2s;
+    }
+    .card-actions button:hover:not(:disabled) { 
+      background: #ffb300; 
+    }
+
+    /* ====== MODAL (Base) ====== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .3s ease, visibility .3s ease;
+      z-index: var(--z-overlay); /* Z-index actualizado */
+      display: none; /* Inicia oculto */
+    }
+    
+    .modal-overlay.show { /* Se usa JS para forzar la visibilidad */
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 2rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #888;
+      line-height: 1;
+    }
+    .close-btn:hover {
+      color: var(--color-dark);
+    }
+    
+    /* ====== MODAL CARRITO (MEJORA 4: Responsiveness para Carrito) ====== */
+    #carritoModal { 
+      position: fixed; 
+      top: 0; 
+      right: -100%; 
+      width: 400px; 
+      max-width: 100%; /* Ajuste para móvil */
+      height: 100%; 
+      background: var(--color-white); 
+      box-shadow: -2px 0 6px rgba(0,0,0,.2); 
+      transition: right .4s ease-in-out; 
+      z-index: var(--z-modal); /* Z-index actualizado */
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* MEJORA: Ocupa todo el ancho en móviles */
+    @media (max-width: 600px) {
+        #carritoModal {
+            width: 100%;
+        }
+    }
+    
+    body.modal-open #carritoModal { 
+      right: 0; 
+    }
+    
+    .carrito-header, .carrito-footer, .carrito-body {
+      padding: 1.5rem; 
+    }
+    
+    .carrito-header {
+      border-bottom: 2px solid var(--color-yellow-500);
+    }
+    
+    .carrito-header h3 { 
+      margin: 0;
+    }
+    
+    .carrito-body {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+    
+    .carrito-footer {
+      background: #f9f9f9;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .carrito-item { 
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.9em;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 0.75rem;
+    }
+    
+    .carrito-item span:first-child {
+      font-weight: bold;
+      /* MEJORA: Asegurar que el nombre no desborde en móvil */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .cantidad-controls {
+      display: flex;
+      align-items: center;
+      min-width: 70px; /* Asegura el espacio para los botones */
+    }
+    
+    .remove-btn {
+      padding-left: 0.5rem;
+    }
+    
+    /* NUEVO: Formulario de Checkout (MEJORA 5: Corrección de Textarea) */
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: Arial, sans-serif;
+    }
+    
+    #checkoutBtn {
+      background: var(--color-green-whatsapp); 
+    }
+    #checkoutBtn:hover {
+      background: var(--color-green-whatsapp-dark);
+    }
+
+    /* ====== MODAL DE DETALLES (MEJORA 6: Responsiveness para Detalles) ====== */
+    #detalleModal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: var(--color-white);
+      z-index: var(--z-modal); /* Z-index actualizado */
+      border-radius: var(--border-radius);
+      width: 500px;
+      max-width: 90%;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .3s ease, visibility .3s ease, transform .3s ease;
+    }
+    
+    /* MEJORA: Reducción de tamaño en móvil */
+    @media (max-width: 600px) {
+        #detalleModal {
+            width: 95%;
+            top: 50%; /* Centrado en Y */
+            max-height: 90vh; /* Limita la altura */
+            overflow-y: auto;
+        }
+        #detalleModal img {
+            height: 200px;
+        }
+    }
+    
+    body.modal-open #detalleModal {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* ====== NOTIFICACIÓN TOAST ====== */
+    #toast {
+      z-index: var(--z-toast); /* Z-index actualizado */
+    }
+
+    /* ====== FOOTER ====== */
+    footer { 
+      background: var(--color-dark); 
+      color: var(--color-white); 
+      text-align: center; 
+      padding: 1rem; 
+      margin-top: 2rem; 
+    }
+    footer a { 
+      color: var(--color-yellow-500); 
+      text-decoration: none; 
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Florería Amarilla 🌼</h1>
+    <nav>
+      <a href="#catalogo">Catálogo</a>
+      <a href="#contacto">Contacto</a>
+      <button type="button" id="btnCarrito" aria-controls="carritoModal">🛒 Carrito (<span id="carritoContador">0</span>)</button>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h2>Regala emociones, no solo flores</h2>
+    <p>Ramos para ocasiones especiales, románticas y memorables.</p>
+  </section>
+  
+  <main class="container">
+    <section class="catalogo-header">
+      <div class="filtro-container">
+        <button class="filtro-btn active" data-categoria="todos">Todos</button>
+        <button class="filtro-btn" data-categoria="Rosas">Rosas</button>
+        <button class="filtro-btn" data-categoria="Tulipanes">Tulipanes</button>
+        <button class="filtro-btn" data-categoria="Mixtos">Mixtos</button>
+      </div>
+      <input type="search" id="searchBar" placeholder="Buscar por nombre...">
+    </section>
+
+    <section id="catalogo" class="catalogo">
+      </section>
+  </main>
+  
+  <div id="modalOverlay" class="modal-overlay"></div>
+
+  <aside id="carritoModal" role="dialog" aria-modal="true" aria-labelledby="carritoTitle">
+    <div class="carrito-header">
+      <button id="vaciarCarritoBtn">Vaciar Carrito</button>
+      <h3 id="carritoTitle">Tu carrito</h3>
+      <button id="closeCarrito" class="close-btn" title="Cerrar carrito">&times;</button>
+    </div>
+    
+    <div id="carritoItems" class="carrito-body">
+      </div>
+    
+    <div class="carrito-footer">
+      <p><strong>Total: ₡<span id="carritoTotal">0</span></strong></p>
+      
+      <form id="checkoutForm">
+        <h4>Completa tus datos para finalizar</h4>
+        <div class="form-group">
+          <label for="nombre">Nombre Completo</label>
+          <input type="text" id="nombre" required>
+        </div>
+        <div class="form-group">
+          <label for="direccion">Dirección de Entrega</label>
+          <input type="text" id="direccion" required>
+        </div>
+        <div class="form-group">
+          <label for="fechaEntrega">Fecha y Hora de Entrega</label>
+          <input type="datetime-local" id="fechaEntrega" required>
+        </div>
+        <div class="form-group">
+          <label for="mensaje">Mensaje para la tarjeta (Opcional)</label>
+          <textarea id="mensaje" rows="2"></textarea>
+        </div>
+        <button type="submit" id="checkoutBtn">Finalizar pedido por WhatsApp</button>
+      </form>
+    </div>
+  </aside>
+
+  <div id="detalleModal" role="dialog" aria-modal="true" aria-labelledby="detalleNombre">
+    <button id="closeDetalle" class="close-btn" title="Cerrar detalles">&times;</button>
+    <img id="detalleImg" src="" alt="Producto">
+    <div id="detalleContenido">
+      <h3 id="detalleNombre"></h3>
+      <p id="detalleDesc"></p>
+      <div class="precio-stock">
+        <span id="detallePrecio"></span>
+        <span id="detalleStock"></span>
+      </div>
+      <button id="detalleAddBtn" class="add-to-cart-detalle" data-id="">Agregar al carrito</button>
+    </div>
+  </div>
+
+  <section id="contacto">
+    <h2>Contacto</h2>
+    <p>Haz tu pedido por WhatsApp o escríbenos:</p>
+    <a href="#" id="waLink" target="_blank" rel="noopener noreferrer">📲 WhatsApp</a>
+  </section>
+
+  <div id="toast"></div>
+
+  <footer>
+    <p>© 2025 Florería Amarilla | Síguenos en <a href="#">Instagram</a></p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+      // ====== CONSTANTES Y VARIABLES GLOBALES ======
+      const WHATSAPP_NUMBER = "50663410092"; 
+      
+      // ...
+      const productos = [
+       
+        { id: 1, nombre: "Ramo Amarillo", precio: 15000, img: "imagenes/Ramo Amarillo.jpg", categoria: "Mixtos", descripcion: "Un vibrante ramo de flores amarillas mixtas, perfecto para alegrar el día.", stock: 10 },
+        
+        
+        { id: 2, nombre: "Rosas Rojas", precio: 18000, img: "imagenes/RosasRojas.jpg", categoria: "Rosas", descripcion: "Clásico ramo de 12 rosas rojas premium, el símbolo perfecto del amor.", stock: 5 },
+        
+        
+        { id: 3, nombre: "Tulipanes Mixtos", precio: 20000, img: "imagenes/Tulipanes.jpg", categoria: "Tulipanes", descripcion: "Elegante selección de tulipanes de diversos colores para la primavera.", stock: 8 },
+        
+        
+        { id: 4, nombre: "Rosas Blancas", precio: 17000, img: "imagenes/Rosas Blancas.jpg", categoria: "Rosas", descripcion: "Puro y sereno, este ramo de rosas blancas es ideal para mostrar respeto y admiración.", stock: 2 },
+        
+      
+        { id: 5, nombre: "Girasoles", precio: 16000, img: "imagenes/Girasoles.jpg", categoria: "Mixtos", descripcion: "Un alegre ramo de girasoles que trae la luz del sol a cualquier habitación.", stock: 12 }
+      ];
+// ...
+
+      // Seleccionar elementos del DOM
+      const catalogo = document.getElementById("catalogo");
+      const waLink = document.getElementById("waLink");
+      
+      // Carrito
+      const carritoModal = document.getElementById("carritoModal");
+      const carritoItems = document.getElementById("carritoItems");
+      const carritoTotal = document.getElementById("carritoTotal");
+      const carritoContador = document.getElementById("carritoContador");
+      const btnCarrito = document.getElementById("btnCarrito");
+      const closeCarrito = document.getElementById("closeCarrito");
+      const vaciarCarritoBtn = document.getElementById("vaciarCarritoBtn");
+      const checkoutForm = document.getElementById("checkoutForm");
+      
+      // Filtros y Búsqueda
+      const searchBar = document.getElementById("searchBar");
+      const filtroContainer = document.querySelector(".filtro-container");
+
+      // Modal Detalles
+      const detalleModal = document.getElementById("detalleModal");
+      const closeDetalle = document.getElementById("closeDetalle");
+      const detalleImg = document.getElementById("detalleImg");
+      const detalleNombre = document.getElementById("detalleNombre");
+      const detalleDesc = document.getElementById("detalleDesc");
+      const detallePrecio = document.getElementById("detallePrecio");
+      const detalleStock = document.getElementById("detalleStock");
+      const detalleAddBtn = document.getElementById("detalleAddBtn");
+      
+      // Overlay y Toast
+      const modalOverlay = document.getElementById("modalOverlay");
+      const toast = document.getElementById("toast");
+
+      // Estado de la aplicación
+      let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+      let categoriaActual = 'todos';
+      let terminoBusqueda = '';
+      
+      waLink.href = `https://wa.me/${WHATSAPP_NUMBER}`;
+      
+      let toastTimer;
+
+      // ====== FUNCIONES DE UTILIDAD Y MODALES (MEJORA 9: Lógica de modales refactorizada) ======
+
+      function saveCarrito() {
+        localStorage.setItem("carrito", JSON.stringify(carrito));
+      }
+      
+      /**
+       * Muestra una notificación toast
+       */
+      function showToast(mensaje) {
+        clearTimeout(toastTimer);
+        toast.textContent = mensaje;
+        toast.classList.add("show");
+        
+        toastTimer = setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+      
+      /**
+       * Abre un modal y maneja el overlay y el foco (MEJORA 10: Foco en modales)
+       */
+      function openModal(modalName) {
+        // Cierra cualquier modal abierto primero para evitar conflictos
+        closeModal(false); 
+        
+        const modal = (modalName === 'carrito') ? carritoModal : detalleModal;
+        
+        document.body.classList.add('modal-open');
+        modalOverlay.style.display = 'block';
+
+        if (modalName === 'carrito') {
+          modal.style.right = '0';
+          // Enfoca el primer botón interactivo
+          vaciarCarritoBtn.focus();
+        } else {
+          modal.style.opacity = '1';
+          modal.style.visibility = 'visible';
+          modal.style.transform = 'translate(-50%, -50%) scale(1)';
+          // Enfoca el botón de cerrar
+          closeDetalle.focus();
+        }
+        
+        // Aplica el estilo de transición al overlay
+        setTimeout(() => {
+            modalOverlay.classList.add('show');
+            modalOverlay.style.opacity = '1';
+            modalOverlay.style.visibility = 'visible';
+        }, 10);
+      }
+      
+      /**
+       * Cierra ambos modales y limpia el overlay
+       * @param {boolean} [shouldFocusBtn=true] - Si debe devolver el foco al botón del carrito.
+       */
+      function closeModal(shouldFocusBtn = true) {
+        if (!document.body.classList.contains('modal-open')) return;
+
+        document.body.classList.remove('modal-open');
+        
+        // Cierra el carrito
+        carritoModal.style.right = '-100%';
+        
+        // Cierra el detalle
+        detalleModal.style.opacity = '0';
+        detalleModal.style.visibility = 'hidden';
+        detalleModal.style.transform = 'translate(-50%, -50%) scale(0.9)';
+
+        // Cierra el overlay con transición
+        modalOverlay.classList.remove('show');
+        modalOverlay.style.opacity = '0';
+        modalOverlay.style.visibility = 'hidden';
+        
+        // Oculta completamente el overlay después de la transición
+        setTimeout(() => {
+          modalOverlay.style.display = 'none';
+          if (shouldFocusBtn) {
+            btnCarrito.focus(); // Devuelve el foco al botón del carrito
+          }
+        }, 300);
+      }
+      
+      /**
+       * Abre el modal de detalles con la info del producto
+       */
+      function openDetalleModal(id) {
+        const producto = productos.find(p => p.id === id);
+        if (!producto) return;
+        
+        detalleImg.src = producto.img;
+        detalleImg.alt = producto.nombre;
+        detalleNombre.textContent = producto.nombre;
+        detalleDesc.textContent = producto.descripcion;
+        detallePrecio.textContent = `₡${producto.precio.toLocaleString('es-CR')}`;
+        detalleStock.textContent = producto.stock > 0 ? `Stock: ${producto.stock}` : "Agotado";
+        detalleAddBtn.dataset.id = producto.id;
+        
+        // Lógica de stock para el botón
+        const itemEnCarrito = carrito.find(item => item.id === producto.id);
+        const stockRestante = producto.stock - (itemEnCarrito ? itemEnCarrito.cantidad : 0);
+        
+        if (producto.stock === 0) {
+          detalleAddBtn.textContent = "Agotado";
+          detalleAddBtn.disabled = true;
+        } else if (stockRestante <= 0) {
+          detalleAddBtn.textContent = "Stock máximo en carrito";
+          detalleAddBtn.disabled = true;
+        } else {
+          detalleAddBtn.textContent = "Agregar al carrito";
+          detalleAddBtn.disabled = false;
+        }
+        
+        openModal('detalle');
+      }
+
+      // ====== RENDERIZADO ======
+
+      /**
+       * Dibuja los productos en el catálogo, aplicando filtros y búsqueda
+       */
+      function renderCatalogo() {
+        catalogo.innerHTML = "";
+        
+        const productosFiltrados = productos.filter(p => {
+          const porCategoria = (categoriaActual === 'todos') || (p.categoria === categoriaActual);
+          const porBusqueda = p.nombre.toLowerCase().includes(terminoBusqueda.toLowerCase());
+          return porCategoria && porBusqueda;
+        });
+        
+        if (productosFiltrados.length === 0) {
+          catalogo.innerHTML = "<p>No se encontraron productos que coincidan con tu búsqueda.</p>";
+          return;
+        }
+
+        productosFiltrados.forEach(p => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.dataset.id = p.id;
+          
+          const itemEnCarrito = carrito.find(item => item.id === p.id);
+          const stockRestante = p.stock - (itemEnCarrito ? itemEnCarrito.cantidad : 0);
+          
+          let botonHTML;
+          if (p.stock === 0) {
+            botonHTML = `<button class="add-btn" disabled>Agotado</button>`;
+          } else if (stockRestante <= 0) {
+            botonHTML = `<button class="add-btn" disabled>Stock máximo en carrito</button>`;
+          } else {
+            botonHTML = `<button class="add-btn" data-id="${p.id}">Agregar al carrito</button>`;
+          }
+
+          card.innerHTML = `
+            <img src="${p.img}" alt="${p.nombre}" class="card-img">
+            <div class="card-content">
+              <h4>${p.nombre}</h4>
+              <p>₡${p.precio.toLocaleString('es-CR')}</p>
+            </div>
+            <div class="card-actions">
+              ${botonHTML}
+            </div>
+          `;
+          catalogo.appendChild(card);
+        });
+      }
+
+      /**
+       * Dibuja los items en el modal del carrito
+       */
+      function renderCarrito() {
+        carritoItems.innerHTML = "";
+        let total = 0; // Se inicializa la variable total
+        let totalItems = 0;
+        
+        const carritoVacio = carrito.length === 0;
+
+        if (carritoVacio) {
+          carritoItems.innerHTML = "<p>Tu carrito está vacío.</p>";
+        }
+        
+        checkoutForm.style.display = carritoVacio ? "none" : "block";
+        vaciarCarritoBtn.style.display = carritoVacio ? "none" : "inline-block";
+
+        carrito.forEach(item => {
+          const producto = productos.find(p => p.id === item.id);
+          // Aseguramos que 'item.precio' y 'item.cantidad' sean usados para el cálculo.
+          const itemTotal = item.precio * item.cantidad; 
+          total += itemTotal; // Sumamos el subtotal al total general
+          totalItems += item.cantidad;
+          
+          const disableIncrement = item.cantidad >= producto.stock;
+
+          const div = document.createElement("div");
+          div.className = "carrito-item";
+          
+          div.innerHTML = `
+            <span>${item.nombre}</span>
+            <div class="cantidad-controls">
+              <button class="decrement-btn" data-id="${item.id}" ${item.cantidad === 1 ? 'disabled' : ''}>-</button>
+              <span>${item.cantidad}</span>
+              <button class="increment-btn" data-id="${item.id}" ${disableIncrement ? 'disabled' : ''}>+</button>
+            </div>
+            <span>₡${itemTotal.toLocaleString('es-CR')}</span>
+            <button class="remove-btn" data-id="${item.id}" aria-label="Eliminar ${item.nombre}">❌</button>
+          `;
+          carritoItems.appendChild(div);
+        });
+
+        // Actualizamos los elementos del DOM con los valores calculados
+        carritoTotal.textContent = total.toLocaleString('es-CR');
+        carritoContador.textContent = totalItems;
+        saveCarrito();
+      }
+
+      // ====== LÓGICA DEL CARRITO ======
+
+      function agregarAlCarrito(id) {
+        const producto = productos.find(p => p.id === id);
+        const itemEnCarrito = carrito.find(item => item.id === id);
+
+        const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
+
+        if (cantidadEnCarrito >= producto.stock) {
+          showToast("Has alcanzado el stock máximo");
+          return;
+        }
+
+        if (itemEnCarrito) {
+          itemEnCarrito.cantidad++;
+        } else {
+          carrito.push({ ...producto, cantidad: 1 });
+        }
+        
+        showToast(`"${producto.nombre}" agregado al carrito`);
+        renderCarrito();
+        renderCatalogo();
+      }
+
+      function incrementarCantidad(id) {
+        const itemEnCarrito = carrito.find(item => item.id === id);
+        const producto = productos.find(p => p.id === id);
+        
+        if (itemEnCarrito && itemEnCarrito.cantidad < producto.stock) {
+          itemEnCarrito.cantidad++;
+        }
+        renderCarrito();
+        renderCatalogo();
+      }
+      
+      function decrementarCantidad(id) {
+        const itemEnCarrito = carrito.find(item => item.id === id);
+        if (itemEnCarrito && itemEnCarrito.cantidad > 1) {
+          itemEnCarrito.cantidad--;
+        } else {
+          // Si es 1 y presiona '-', lo elimina
+          eliminarDelCarrito(id);
+        }
+        renderCarrito();
+        renderCatalogo();
+      }
+
+      function eliminarDelCarrito(id) {
+        const item = carrito.find(i => i.id === id);
+        if (item) {
+          carrito = carrito.filter(item => item.id !== id);
+          showToast(`"${item.nombre}" eliminado del carrito`);
+        }
+        renderCarrito();
+        renderCatalogo();
+      }
+      
+      function vaciarCarrito() {
+        if (confirm("¿Estás seguro de que quieres vaciar tu carrito?")) {
+          carrito = [];
+          showToast("Carrito vaciado");
+          renderCarrito();
+          renderCatalogo();
+          // NO LLAMAMOS a closeModal aquí para evitar cerrar si el usuario está en el modal de detalles
+          // La lógica de closeModal se activa en el listener del botón vaciarCarritoBtn si lo deseas
+        }
+      }
+      
+      /**
+       * Genera el mensaje de WhatsApp y abre la ventana (MEJORA 11: Validación simple)
+       */
+      function finalizarPedido(e) {
+        e.preventDefault();
+        
+        // Validación básica (aunque los campos tienen 'required', esta es una capa extra)
+        const nombreInput = document.getElementById("nombre");
+        const direccionInput = document.getElementById("direccion");
+        const fechaInput = document.getElementById("fechaEntrega"); // Corregido ID
+        
+        if (!nombreInput.value || !direccionInput.value || !fechaInput.value) {
+            alert("Por favor, completa todos los campos obligatorios (Nombre, Dirección, Fecha/Hora).");
+            return;
+        }
+        
+        // 1. Leer datos del formulario
+        const nombre = nombreInput.value;
+        const direccion = direccionInput.value;
+        const fecha = fechaInput.value;
+        const mensajeTarjeta = document.getElementById("mensaje").value || "Ninguno";
+        
+        // 2. Construir el mensaje
+        let mensaje = `¡Hola Florería Amarilla! 🌼\nQuisiera hacer el siguiente pedido:\n\n`;
+        mensaje += `*DATOS DEL CLIENTE:*\n`;
+        mensaje += `*- Nombre:* ${nombre}\n`;
+        mensaje += `*- Dirección:* ${direccion}\n`;
+        mensaje += `*- Fecha/Hora Entrega:* ${new Date(fecha).toLocaleString('es-CR')}\n`;
+        mensaje += `*- Mensaje Tarjeta:* ${mensajeTarjeta}\n\n`;
+        
+        mensaje += `*PRODUCTOS:*\n`;
+        let totalPedido = 0;
+        
+        carrito.forEach(item => {
+          const subtotal = item.precio * item.cantidad;
+          mensaje += `* ${item.nombre} (x${item.cantidad}) - ₡${subtotal.toLocaleString('es-CR')}\n`;
+          totalPedido += subtotal;
+        });
+        
+        mensaje += `\n*Total del Pedido: ₡${totalPedido.toLocaleString('es-CR')}*`;
+        mensaje += `\n\n¡Quedo atento a la confirmación!`;
+        
+        // 3. Abrir WhatsApp
+        const urlWhatsApp = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+        window.open(urlWhatsApp, '_blank');
+        
+        // 4. Limpiar
+        vaciarCarrito(); // Esto limpia el carrito y llama a renderCarrito()
+        checkoutForm.reset();
+        closeModal(); // Asegura el cierre del modal después del envío
+      }
+      
+      // ====== MANEJO DE EVENTOS (MEJORA 12: Delegación del add-btn en modal) ======
+      
+      function setupEventListeners() {
+          // Modales
+          btnCarrito.addEventListener("click", () => openModal('carrito'));
+          closeCarrito.addEventListener("click", () => closeModal(true));
+          closeDetalle.addEventListener("click", () => closeModal(true));
+          modalOverlay.addEventListener("click", () => closeModal(true));
+          
+          // Tecla ESC para cerrar modales
+          document.addEventListener('keydown', (e) => {
+              if (e.key === 'Escape' && document.body.classList.contains('modal-open')) {
+                  closeModal(true);
+              }
+          });
+          
+          // Búsqueda
+          searchBar.addEventListener("input", (e) => {
+            terminoBusqueda = e.target.value;
+            renderCatalogo();
+          });
+          
+          // Filtros
+          filtroContainer.addEventListener("click", (e) => {
+            if (e.target.tagName === "BUTTON") {
+              filtroContainer.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
+              e.target.classList.add("active");
+              categoriaActual = e.target.dataset.categoria;
+              renderCatalogo();
+            }
+          });
+
+          // Delegación de eventos para el catálogo (Agregar y Detalles)
+          catalogo.addEventListener("click", (e) => {
+            const addBtn = e.target.closest('.add-btn');
+            const cardContent = e.target.closest('.card-content, .card-img');
+            
+            if (addBtn && !addBtn.disabled) {
+              const id = parseInt(addBtn.dataset.id);
+              agregarAlCarrito(id);
+            } else if (cardContent) {
+              const id = parseInt(cardContent.closest('.card').dataset.id);
+              openDetalleModal(id);
+            }
+          });
+          
+          // Delegación de eventos para los items del carrito
+          carritoItems.addEventListener("click", (e) => {
+            const target = e.target.closest('[data-id]');
+            if (!target) return;
+
+            const id = parseInt(target.dataset.id);
+            
+            if (target.classList.contains("remove-btn")) {
+              eliminarDelCarrito(id);
+            } else if (target.classList.contains("increment-btn") && !target.disabled) {
+              incrementarCantidad(id);
+            } else if (target.classList.contains("decrement-btn") && !target.disabled) {
+              decrementarCantidad(id);
+            }
+          });
+          
+          // Botón "Agregar" en Modal de Detalles (MEJORA: Evento fijo)
+          detalleAddBtn.addEventListener("click", (e) => {
+            if (e.target.disabled) return;
+            const id = parseInt(e.target.dataset.id);
+            agregarAlCarrito(id);
+            // Actualiza el botón del modal de detalles por si se alcanzó el stock
+            openDetalleModal(id); 
+          });
+          
+          // Botón Vaciar Carrito
+          vaciarCarritoBtn.addEventListener("click", () => {
+            vaciarCarrito();
+            closeModal(true); // Cierra el modal después de vaciar
+          });
+          
+          // Formulario de Pedido
+          checkoutForm.addEventListener("submit", finalizarPedido);
+      }
+
+      // ====== INICIALIZACIÓN ======
+      function initApp() {
+          setupEventListeners();
+          renderCatalogo();
+          renderCarrito();
+      }
+      
+      initApp();
+
+    });
+  </script>
+</body>
+</html>
